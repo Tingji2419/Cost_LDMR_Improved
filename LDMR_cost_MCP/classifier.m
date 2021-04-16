@@ -1,6 +1,7 @@
 function [label, nm] = classifier(A, X, trls, imgsize)
 
 classnum = numel(unique(trls));
+
 nm = zeros(1,classnum);
 for i=1:classnum
     pos = find(trls == i);
@@ -9,8 +10,8 @@ for i=1:classnum
     r = reshape(A*X - Ai*Xi, imgsize);
     nm(i) = sum(svd(r));
 end
+
 index = find(nm==min(nm));
 label = index(1);
-
 end
 

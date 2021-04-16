@@ -3,7 +3,7 @@ function [Xn] = LDMR_MCP_cost(y, A, D, trls, Xinit, Einit, alpha, beta, imgsize,
 mu = 1;
 eps_abs = 1e-3;
 eps_rel = 1e-3;
-Max_Iter = 100;
+Max_Iter = 50;
 p = imgsize(1);
 q = imgsize(2);
 n = size(A,2);
@@ -34,47 +34,18 @@ for iter = 1:Max_Iter
     Eo = En;
    
     % update E
-     m1 = reshape( cost(Xo, A, No_p, trls, imgsize, ttls, boundary).* (A*Xo - y + Zo/mu), imgsize); 
+     m1 = reshape( cost(Xo, A, No_p, trls, imgsize, ttls, boundary).* (A*Xo - y + Zo/mu), imgsize);  
+     
      Em  =  proximal_matrix(m1, 1/mu, gamma);
      En   =  reshape(Em, [prod(imgsize), 1]);
+     %
      
-%     [AU,SU,VU] = svd(m1,'econ');   
-%     SU = diag(SU);    
-%     SVP = length(find(SU>1/mu));  
-%     if SVP >= 1  
-%         SU = SU(1:SVP)-1/mu;      
-%     else
-%         SVP = 1;  
-%         SU = 0;  
-%     end 
-%     En = AU(:,1:SVP)*diag(SU)*VU(:,1:SVP)';
-    % 加句话En = cost(EN, Xn, A, y, imgsize)
-
-    
-%    En = En(:);
-    
-   
     % update X
     g = y + En - Zo/mu;
-    Xn = M*g; 
-       
+    Xn = M*g;       
     
     % update Z
     Zn = Zo + mu*(A*Xn - En - y);
-    
-%     obj(iter) = sum(svd(En,'econ'));
-%     for kk=1:classnum
-%         pos = find(trls ==kk);
-%         Ai = A(:,pos);
-%         xi = Xn(pos);
-%         obj(iter) = obj(iter) + alpha/2*D(kk)*norm(Ai*xi,2)^2; 
-%         for jj=1:classnum 
-%             pos = find(trls ==jj);
-%             Aj = A(:,pos);
-%             xj = Xn(pos);
-%             obj(iter) = obj(iter) + beta/2*(D(kk)*Ai*xi)'*(D(jj)*Aj*xj);
-%         end
-%     end
     
     % check the convergence condition
     eps_pri = sqrt(p*q)*eps_abs + eps_rel*max( max(norm(A*Xn,2),norm(En,2)), norm(y,2));
@@ -86,11 +57,9 @@ for iter = 1:Max_Iter
         break;
     end  
     
-    
 end
 
 end
-
 
 function out = proximal_matrix(Y, lambda, gamma)
 [U, S, V] = svd(Y, 'econ');

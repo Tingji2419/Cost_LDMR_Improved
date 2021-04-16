@@ -35,6 +35,7 @@ for iter = 1:Max_Iter
    
     % update E
     m1 = reshape(A*Xo - y + Zo/mu, imgsize);   
+    
     [AU,SU,VU] = svd(m1,'econ');   
     SU = diag(SU);    
     SVP = length(find(SU>1/mu));  
